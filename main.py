@@ -8,10 +8,13 @@ import torch
 from torchdata.datapipes.iter import FileOpener, FileLister
 from matplotlib import pyplot as plt
 import numpy as np
+import glob
+from torchvision.io import read_image
+
 
 PATH = 'Imagedata'
 
-# Read from .tfrec-file. Can't parse the raw images at the moment
+# Read from .tfrec-file. Can't parse the raw images with pytorch
 def read_tfrecord_data():
     datapipe1 = FileLister(PATH, '*.tfrec')
     datapipe2 = FileOpener(datapipe1, mode='b')
@@ -20,16 +23,32 @@ def read_tfrecord_data():
     i = 0
     for example in tfrecord_loader_dp:
         i += 1
-        if i == 5:
-            example_tensor = torch.frombuffer(example['image_raw'].pop(),
-                                              dtype=torch.uint8)
-            print(example_tensor.shape)
-            plt.imshow(torch.reshape(example_tensor,
-                                     (example['height'],example['width'])))
+        if i == 1:
+            print(example['image_raw'].pop().decode('ascii'))
+            example_np = np.frombuffer(example['image_raw'].pop(), dtype=np.uint8)
+            print(example_np.shape)
+            plt.imshow(np.reshape(example_np, (example['height'], example['width'])))
             plt.show()
 
+
+def read_png_data():
+    first = True
+    for image_path in glob.glob(PATH + '/Images/*.png'):
+        image = read_image(image_path)
+        if first:
+            first = False
+            plt.imshow(image[0,:,:])
+            plt.show()
+            imstack = image
+            continue
+        
+        print(image.shape)
+        #imstack = torch.cat((imstack, image), 0)
+    print(imstack.shape)
+
+
 def main():
-    read_tfrecord_data()
+    read_png_data()
 
 
 if __name__ == '__main__':
