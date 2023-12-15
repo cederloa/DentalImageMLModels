@@ -1,2 +1,3 @@
 *.zip
 Imagedata
+__pycache__
