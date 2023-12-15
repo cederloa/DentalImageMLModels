@@ -12,7 +12,7 @@ import glob
 from torchvision.io import read_image
 
 
-PATH = 'Imagedata'
+PATH = 'Imagedata/JawSegmentationImages'
 
 # Read from .tfrec-file. Can't parse the raw images with pytorch
 def read_tfrecord_data():
@@ -31,17 +31,17 @@ def read_tfrecord_data():
             plt.show()
 
 
+# The images have different sizes, need to be resized and realigned
 def read_png_data():
     first = True
     for image_path in glob.glob(PATH + '/Images/*.png'):
         image = read_image(image_path)
         if first:
             first = False
+            imstack = image
             plt.imshow(image[0,:,:])
             plt.show()
-            imstack = image
             continue
-        
         print(image.shape)
         #imstack = torch.cat((imstack, image), 0)
     print(imstack.shape)
